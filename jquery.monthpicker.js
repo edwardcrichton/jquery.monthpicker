@@ -68,9 +68,12 @@
 
 			this._updateMonths();
 			this._updateYears();
+			this._disableMonths();
+
+			var that = this;
 
 			var change = function change() {
-				$(me).trigger("change");
+				that._triggerChange();
 			};
 
 			monthsElement.on("change", change);
@@ -128,6 +131,8 @@
 		},
 
 		_triggerChange: function _triggerChange() {
+			this._disableMonths();
+
 			var me = $(this.element);
 
 			$(me).trigger("change");
@@ -210,24 +215,53 @@
 				})();
 			}
 		},
-		/* public methods */
-
-		getDate: function getDate() {
+		_disableMonths: function _disableMonths() {
 			var control = $('#' + this.controlId);
 			var monthsElement = $(control).find("." + className + "-months");
 			var yearsElement = $(control).find("." + className + "-years");
 
-			var selectedMonthValue = $(monthsElement).find("option:selected").attr("value");
-			if (Number(selectedMonthValue) !== Number(selectedMonthValue)) {
-				return null;
-			}
+			var minYear = this.options.min.getFullYear();
+			var maxYear = this.options.max.getFullYear();
 
-			var monthValue = parseInt(selectedMonthValue, 10);
 			var yearValue = parseInt($(yearsElement).find("option:selected").attr("value"), 10);
 
-			return new Date(yearValue, monthValue, 1);
+			$(monthsElement).find("option").prop("disabled", false);
+
+			if (yearValue === minYear) {
+				// Every month up to the min month is disabled
+				var minMonth = this.options.min.getMonth();
+
+				for (var minM = 0; minM < minMonth; minM++) {
+					$(monthsElement).find("option[value=" + minM + "]").prop("disabled", true);
+				}
+			}
+
+			if (yearValue === maxYear) {
+				// Every month after the max month is disabled
+				var maxMonth = this.options.max.getMonth();
+
+				for (var maxM = maxMonth + 1; maxM < 12; maxM++) {
+					$(monthsElement).find("option[value=" + maxM + "]").prop("disabled", true);
+				}
+			}
+
+			var date = this.getDate();
+			if (date !== null) {
+				if (date.getTime() < this.options.min.getTime()) {
+					this._setDate(this.options.min);
+				} else if (date.getTime() > this.options.max.getTime()) {
+					this._setDate(this.options.max);
+				}
+			}
+
+			date = this.getDate();
+			if (date !== null) {
+				$(yearsElement).prop("disabled", false);
+			} else {
+				$(yearsElement).prop("disabled", true);
+			}
 		},
-		setDate: function setDate(date) {
+		_setDate: function _setDate(date) {
 			if (date === undefined) {
 				return;
 			}
@@ -266,10 +300,29 @@
 					}
 				}
 			}
+		},
 
-			var me = $(this.element);
 
-			$(me).trigger("change");
+		/* public methods */
+
+		getDate: function getDate() {
+			var control = $('#' + this.controlId);
+			var monthsElement = $(control).find("." + className + "-months");
+			var yearsElement = $(control).find("." + className + "-years");
+
+			var selectedMonthValue = $(monthsElement).find("option:selected").attr("value");
+			if (Number(selectedMonthValue) !== Number(selectedMonthValue)) {
+				return null;
+			}
+
+			var monthValue = parseInt(selectedMonthValue, 10);
+			var yearValue = parseInt($(yearsElement).find("option:selected").attr("value"), 10);
+
+			return new Date(yearValue, monthValue, 1);
+		},
+		setDate: function setDate(date) {
+			this._setDate(date);
+			this._triggerChange();
 		}
 	});
 })(jQuery);

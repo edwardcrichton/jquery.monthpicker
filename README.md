@@ -14,9 +14,9 @@ $(yourelement).monthpicker( options );
 
 The options are:
 
-```min``` - A Date used to set the minimum year. Defaults to ```now``` minus 5 years.
-```max``` - A Date used to set the maximum year. Defaults to ```now``` plus 5 years.
-```default``` - The Date to chose initially when the widget is first started. If not set, this is ```now``` (this month).
+```min``` - A Date used to set the minimum month and year. Defaults to ```now``` minus 5 years.
+```max``` - A Date used to set the maximum month and year. Defaults to ```now``` plus 5 years.
+```default``` - The Date to choose initially when the widget is first started. If not set, this is ```now``` (this month).
 ```optional``` - Whether there is an non-month in the month drop down. Defaults to ```false```. It can be useful to set ```default``` to ```null``` when ```optional: true```.
 
 Like any other jquery ui widget, you can set these options with:
